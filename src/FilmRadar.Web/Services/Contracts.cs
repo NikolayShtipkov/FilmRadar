@@ -30,6 +30,7 @@ public interface IUserMovieService
     Task<IReadOnlyDictionary<int, LocalMovie>> GetStatesAsync(IEnumerable<int> tmdbIds, CancellationToken ct);
     Task<IReadOnlyList<RatingHistory>> GetHistoryAsync(CancellationToken ct);
     Task<MutationResult> AddAsync(int tmdbId, CancellationToken ct);
+    Task<MutationResult> AddAsync(int tmdbId, WatchStatus status, CancellationToken ct);
     Task<MutationResult> UpdateAsync(int id, MovieUpdate update, CancellationToken ct);
     Task<MutationResult> DeleteAsync(int id, CancellationToken ct);
 }

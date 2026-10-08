@@ -26,6 +26,24 @@ public sealed class MyListController(IUserMovieService movies) : Controller
         catch (TmdbApiException ex) { TempData["Error"] = ex.UserMessage; }
         return RedirectToAction(nameof(Index));
     }
+    [HttpPost]
+    public async Task<IActionResult> AddWatched(int tmdbId, CancellationToken ct)
+    {
+        try
+        {
+            var result = await movies.AddAsync(tmdbId, WatchStatus.Watched, ct);
+            if (result.Status == MutationStatus.NotFound) return NotFound();
+            if (result.Status == MutationStatus.Invalid) return BadRequest();
+            TempData["Message"] = "Филмът е в списъка с гледани. Можеш да добавиш оценка, дата или бележка.";
+            return RedirectToAction(nameof(Edit), new { id = result.Id!.Value });
+        }
+        catch (TmdbApiException ex)
+        {
+            TempData["Error"] = ex.UserMessage;
+            return RedirectToAction("Details", "Movies", new { tmdbId });
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
     {

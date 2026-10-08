@@ -58,6 +58,7 @@ public class MvcTests
     }
     [Theory]
     [InlineData("/MyList/Add")]
+    [InlineData("/MyList/AddWatched")]
     [InlineData("/MyList/Delete/1")]
     [InlineData("/MyList/Edit/1")]
     [InlineData("/Profile/Edit")]
@@ -67,6 +68,42 @@ public class MvcTests
         using var factory = new FilmRadarFactory(); using var client = Client(factory);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync(path, new FormUrlEncodedContent([]))).StatusCode);
     }
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task AddWatchedOpensEditorAndPreservesExistingPersonalData(int existingStatus)
+    {
+        using var factory = new FilmRadarFactory(); using var client = Client(factory);
+        using var scope = factory.Services.CreateScope();
+        var movies = scope.ServiceProvider.GetRequiredService<FilmRadar.Web.Services.IUserMovieService>();
+        var db = scope.ServiceProvider.GetRequiredService<FilmRadarDbContext>();
+        if (existingStatus > 0)
+        {
+            var id = (await movies.AddAsync(101, default)).Id!.Value;
+            await movies.UpdateAsync(id, new(existingStatus, existingStatus == 2 ? 4 : null, true, "Keep my note", existingStatus == 2 ? new DateOnly(2020, 1, 1) : null), default);
+        }
+        var html = WebUtility.HtmlDecode(await client.GetStringAsync("/Movies/Details/101"));
+        if (existingStatus < 2) Assert.Contains("action=\"/MyList/AddWatched\"", html);
+        var token = await Token(client, existingStatus == 2 ? "/Profile/Edit" : "/Movies/Details/101");
+        var response = await client.PostAsync("/MyList/AddWatched", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = token, ["tmdbId"] = "101"
+        }));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        var movie = await db.SavedMovies.AsNoTracking().SingleAsync();
+        Assert.Equal(FilmRadar.Web.Domain.WatchStatus.Watched, movie.Status);
+        Assert.NotNull(movie.WatchedOn);
+        Assert.Equal($"/MyList/Edit/{movie.Id}", response.Headers.Location!.OriginalString);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(response.Headers.Location)).StatusCode);
+        if (existingStatus > 0)
+        {
+            Assert.True(movie.IsFavorite); Assert.Equal("Keep my note", movie.Notes);
+        }
+        Assert.Equal(existingStatus == 2 ? 4 : (int?)null, (int?)movie.PersonalRating);
+        if (existingStatus == 2) Assert.Equal(new DateOnly(2020, 1, 1), movie.WatchedOn);
+    }
+
     [Fact]
     public async Task BrowserFlowAddsRatesZeroConfirmsResetAndDeletes()
     {

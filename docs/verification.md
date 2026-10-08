@@ -19,7 +19,7 @@ The MVP deliberately does not include Identity, real AI, extra architecture proj
 
 ## Automated verification
 
-Environment: Windows, .NET SDK **10.0.401**, runtime **10.0.12**. Latest full test execution: **94 passed, 0 failed, 0 skipped**, Release configuration.
+Environment: Windows, .NET SDK **10.0.401**, runtime **10.0.12**. Latest full test execution: **98 passed, 0 failed, 0 skipped**, Release configuration.
 
 - Pure scoring fixtures cover cold start, active normalization, missing metadata, neutral history, zero history, genre ratios, mood changes, vote confidence, tie-breaks and reason limits.
 - SQLite tests apply the actual initial migration and verify idempotent initialization, schema/model consistency, unique/check constraints, nullable ratings, state reset, genre/profile edits and cascading deletion.
@@ -30,6 +30,8 @@ Environment: Windows, .NET SDK **10.0.401**, runtime **10.0.12**. Latest full te
 These tests use deterministic fakes for TMDB, not the live API. No genuine TMDB token was added to source or used for testing.
 
 The project-local configuration update adds a tracked empty `appsettings.Local.example.json` and an ignored `appsettings.Local.json`. Three configuration cases verify missing/blank files, a populated local token and command-line precedence. Blank local values preserve an existing User Secrets token. Release publish was checked and does not include the local token file. Environment variables and command-line arguments retain priority. The local file is loaded at startup; restart after editing it.
+
+Movie details now support adding directly as watched and opening the editor. The initial watched state and date are saved together. An existing watchlist record is promoted without duplicating the movie; existing ratings, dates, favorites and notes on watched records are preserved. MVC tests cover new/watchlist/watched cases and antiforgery rejection for the new POST action.
 
 The restricted environment cannot use the normal Windows NuGet TLS path. Official NuGet packages were downloaded over verified HTTPS into an external workspace-local package source, then restored with that source. `NuGetAudit=false` was passed only to these local restore commands, not committed as project configuration. Normal users should run the README commands against NuGet.org and perform the normal vulnerability audit. MSBuild used `-m:1 -p:UseSharedCompilation=false` because worker-process pipes are restricted here.
 

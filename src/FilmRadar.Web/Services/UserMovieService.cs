@@ -33,11 +33,14 @@ public sealed class UserMovieService(FilmRadarDbContext db, ITmdbClient tmdb, Ti
         (await Read().Where(m => m.Status == WatchStatus.Watched && m.PersonalRating != null).ToListAsync(ct))
             .Select(m => new RatingHistory((int)m.PersonalRating!.Value, m.Genres.Select(g => g.TmdbGenreId).ToArray())).ToArray();
 
-    public async Task<MutationResult> AddAsync(int tmdbId, CancellationToken ct)
+    public Task<MutationResult> AddAsync(int tmdbId, CancellationToken ct) =>
+        AddAsync(tmdbId, WatchStatus.Watchlist, ct);
+
+    public async Task<MutationResult> AddAsync(int tmdbId, WatchStatus status, CancellationToken ct)
     {
-        if (tmdbId <= 0) return new(MutationStatus.Invalid, Error: "Невалиден филм.");
+        if (tmdbId <= 0 || !Enum.IsDefined(status)) return new(MutationStatus.Invalid, Error: "Невалиден филм или статус.");
         var existing = await db.SavedMovies.Where(m => m.UserProfileId == LocalUser.ProfileId && m.TmdbMovieId == tmdbId).Select(m => (int?)m.Id).SingleOrDefaultAsync(ct);
-        if (existing.HasValue) return new(MutationStatus.Duplicate, existing);
+        if (existing.HasValue) return await HandleExistingAsync(existing.Value, status, ct);
         var details = await tmdb.GetMovieDetailsAsync(tmdbId, ct);
         if (details is null || details.Adult) return new(MutationStatus.NotFound);
         if (details.Id != tmdbId || string.IsNullOrWhiteSpace(details.Title)) throw new TmdbApiException(TmdbErrorKind.InvalidPayload);
@@ -52,6 +55,8 @@ public sealed class UserMovieService(FilmRadarDbContext db, ITmdbClient tmdb, Ti
             OriginalTitle = details.OriginalTitle,
             PosterPath = details.PosterPath,
             ReleaseDate = details.ParsedDate,
+            Status = status,
+            WatchedOn = status == WatchStatus.Watched ? DateOnly.FromDateTime(clock.GetLocalNow().DateTime) : null,
             TmdbVoteAverage = details.VoteAverage is >= 0 and <= 10 ? details.VoteAverage : null,
             AddedAtUtc = clock.GetUtcNow().UtcDateTime,
             UpdatedAtUtc = clock.GetUtcNow().UtcDateTime,
@@ -65,9 +70,26 @@ public sealed class UserMovieService(FilmRadarDbContext db, ITmdbClient tmdb, Ti
             db.ChangeTracker.Clear();
             var duplicate = await db.SavedMovies.SingleOrDefaultAsync(m => m.UserProfileId == LocalUser.ProfileId && m.TmdbMovieId == tmdbId, ct);
             if (duplicate is null) throw;
-            return new(MutationStatus.Duplicate, duplicate.Id);
+            return await HandleExistingAsync(duplicate.Id, status, ct);
         }
         return new(MutationStatus.Success, movie.Id);
+    }
+
+    private async Task<MutationResult> HandleExistingAsync(int id, WatchStatus requestedStatus, CancellationToken ct)
+    {
+        if (requestedStatus == WatchStatus.Watched)
+        {
+            var movie = await db.SavedMovies.SingleOrDefaultAsync(m => m.Id == id && m.UserProfileId == LocalUser.ProfileId, ct);
+            if (movie is null) return new(MutationStatus.NotFound);
+            if (movie.Status == WatchStatus.Watchlist)
+            {
+                movie.Status = WatchStatus.Watched;
+                movie.WatchedOn = DateOnly.FromDateTime(clock.GetLocalNow().DateTime);
+                movie.UpdatedAtUtc = clock.GetUtcNow().UtcDateTime;
+                await db.SaveChangesAsync(ct);
+            }
+        }
+        return new(MutationStatus.Duplicate, id);
     }
 
     public async Task<MutationResult> UpdateAsync(int id, MovieUpdate update, CancellationToken ct)
