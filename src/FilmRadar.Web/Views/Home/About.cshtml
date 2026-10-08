@@ -1,3 +1,29 @@
 @{ ViewData["Title"] = "За проекта"; }
 <div class="page-heading"><p class="eyebrow accent">FILMRADAR</p><h1>По следите на доброто кино.</h1></div>
-<section class="panel prose"><h2>Интелигентен филмов навигатор</h2><p>Курсов проект с ASP.NET Core MVC, .NET 10, Razor Views, Entity Framework Core и SQLite. Каталогът се зарежда асинхронно от TMDB чрез HttpClient. Личните списъци, оценки и жанрове се съхраняват локално.</p><h2>Как се получават препоръките?</h2><p>Детерминистичният mock AI комбинира любими жанрове (35), история на оценките (25), настроение (15), TMDB рейтинг и брой гласове (15), и период на издаване (10). Активните тегла се нормализират до 100. Гледаните филми се изключват.</p><h2>Твоята скала</h2><div class="chips">@foreach(var rating in Enum.GetValues<PersonalRating>()){<span>@Labels.Rating(rating)</span>}</div><p>„Не е оценен“ е отделно състояние. Оценка 0 винаги се запазва като реална оценка.</p><h2>Източник на данните</h2><a href="https://www.themoviedb.org/" rel="noopener noreferrer" target="_blank"><img class="tmdb-logo" src="~/images/tmdb-logo.svg" alt="The Movie Database (TMDB)" /></a><p lang="en">This product uses the TMDB API but is not endorsed or certified by TMDB.</p><p class="muted">FilmRadar е локално приложение с един профил. Няма регистрация, реален езиков модел или споделяне на оценки с TMDB.</p></section>
+<section class="panel prose">
+    <h2>Интелигентен филмов навигатор</h2>
+    <p>Курсов проект с ASP.NET Core MVC, .NET 10, Razor Views, Entity Framework Core и SQLite. Каталогът се зарежда асинхронно от TMDB чрез HttpClient. Личните списъци, оценки и жанрове се съхраняват локално.</p>
+
+    <h2>Как се получават препоръките?</h2>
+    <p>Детерминистичният mock AI комбинира любими жанрове (35), история на оценките (25), настроение (15), TMDB рейтинг и брой гласове (15), и период на издаване (10). Активните тегла се нормализират до 100. Гледаните филми се изключват.</p>
+
+    <h2>Mock AI и възможно надграждане</h2>
+    <p><strong>Какво прави сега?</strong> Mock AI подрежда филмите чрез зададени правила и формули. Използва жанровете, настроението и личните оценки, за да изчисли съвпадение 0–100 и да обясни избора. Еднакви входни данни дават еднакъв резултат.</p>
+    <p><strong>Как би работил реален AI?</strong> Езиков модел би могъл да анализира и описанията на филмите и желания като „нещо леко, но без романтика“, след което да предложи заглавия с обяснения според контекста. Предпочитанията и оценките се подават към заявката; това само по себе си не означава обучение на модела.</p>
+    <p><strong>Най-лесният подход:</strong> запазваме сегашното подреждане и добавяме AI API, например Gemini, който пише кратки персонализирани обяснения за вече избраните филми. Сървърът изпраща само нужните предпочитания и филмови данни, проверява JSON отговора и използва сегашните обяснения при грешка. Това добавя реална AI функция без собствено обучение на модел. Интеграцията е идея за бъдещо развитие.</p>
+    <p><a href="https://ai.google.dev/gemini-api/docs/structured-output" rel="noopener noreferrer" target="_blank">Документация: JSON отговори от Gemini API</a></p>
+
+    <h2>Твоята скала</h2>
+    <div class="chips">
+        @foreach (var rating in Enum.GetValues<PersonalRating>())
+        {
+            <span>@Labels.Rating(rating)</span>
+        }
+    </div>
+    <p>„Не е оценен“ е отделно състояние. Оценка 0 винаги се запазва като реална оценка.</p>
+
+    <h2>Източник на данните</h2>
+    <a href="https://www.themoviedb.org/" rel="noopener noreferrer" target="_blank"><img class="tmdb-logo" src="~/images/tmdb-logo.svg" alt="The Movie Database (TMDB)" /></a>
+    <p lang="en">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    <p class="muted">FilmRadar е локално приложение с един профил. Няма регистрация, реален езиков модел или споделяне на оценки с TMDB.</p>
+</section>
