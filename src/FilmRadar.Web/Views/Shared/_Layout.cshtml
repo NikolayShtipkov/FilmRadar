@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#11181c" />
+    <title>@ViewData["Title"] · FilmRadar</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="skip-link" href="#main">Към съдържанието</a>
+    <header class="site-header">
+        <div class="shell header-inner">
+            <a class="brand" asp-controller="Home" asp-action="Index"><span class="radar-mark" aria-hidden="true">◉</span> Film<span>Radar</span></a>
+            <nav aria-label="Основна навигация">
+                <a asp-controller="Movies" asp-action="Search">Открий филм</a>
+                <a asp-controller="Recommendations" asp-action="Index">За теб</a>
+                <a asp-controller="MyList" asp-action="Index">Моят списък</a>
+                <a class="profile-link" asp-controller="Profile" asp-action="Edit">Профил <span aria-hidden="true">↗</span></a>
+            </nav>
+        </div>
+    </header>
+    <main id="main" class="shell" tabindex="-1">
+        @if (TempData["Message"] is string message) { <div class="notice success" role="status">@message</div> }
+        @if (TempData["Error"] is string error) { <div class="notice" role="alert">@error</div> }
+        @RenderBody()
+    </main>
+    <footer class="shell site-footer">
+        <span>FilmRadar <span class="muted">/ Следващият ти добър филм.</span></span>
+        <a asp-controller="Home" asp-action="About">За проекта и TMDB</a>
+    </footer>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,19 @@
+@model HomePage
+@{ ViewData["Title"] = "Следващият ти добър филм"; }
+<section class="hero">
+    <div>
+        <p class="eyebrow accent">ТВОЯТ ЛИЧЕН ФИЛМОВ НАВИГАТОР</p>
+        <h1>По-малко търсене.<br /><em>Повече добро кино.</em></h1>
+        <p class="lead">Открий филм за настроението си. Запази го, оцени го по твоята скала и направи следващата препоръка още по-точна.</p>
+        <div class="actions"><a class="button primary" asp-controller="Recommendations" asp-action="Index">Намери нещо за мен <span aria-hidden="true">↗</span></a><a class="button subtle" asp-controller="Movies" asp-action="Search">Търси заглавие</a></div>
+    </div>
+    <div class="radar-art" aria-hidden="true"><span class="orbit o1"></span><span class="orbit o2"></span><span class="orbit o3"></span><span class="radar-line"></span><span class="radar-dot d1"></span><span class="radar-dot d2"></span><div class="signal">ТВОЯТ ВКУС.<br /><strong>НОВ СИГНАЛ.</strong></div></div>
+</section>
+<section class="steps" aria-label="Как работи">
+    <div><span>01</span><h2>Открий</h2><p>Заглавия, жанрове и нови посоки.</p></div>
+    <div><span>02</span><h2>Оцени</h2><p>От „За нищо не става“ до „Топ“.</p></div>
+    <div><span>03</span><h2>Настрой радара</h2><p>Препоръки, които следват твоя вкус.</p></div>
+</section>
+<div class="section-heading"><div><p class="eyebrow">НА РАДАРА</p><h2>Популярни в момента</h2></div><a asp-controller="Movies" asp-action="Search" asp-route-mode="discover">Разгледай каталога →</a></div>
+@if (Model.Error != null) { <div class="empty-state"><h3>Каталогът ще бъде тук.</h3><p>@Model.Error</p><a class="button subtle" asp-controller="MyList" asp-action="Index">Отвори моя списък</a></div> }
+else { <div class="movie-grid">@foreach (var movie in Model.Movies) { <partial name="_MovieCard" model="movie" /> }</div> }

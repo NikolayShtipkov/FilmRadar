@@ -1,0 +1,3 @@
+@model MovieCard
+@{ ViewData["Title"] = "Премахване"; }
+<section class="empty-state"><p class="eyebrow">ПОТВЪРЖДЕНИЕ</p><h1>Премахване на „@Model.Title“?</h1><p>Личната оценка и бележката за този филм също ще бъдат премахнати.</p><form asp-action="Delete" asp-route-id="@Model.SavedId" method="post" class="actions"><button class="button danger" type="submit">Да, премахни</button><a class="button subtle" asp-action="Edit" asp-route-id="@Model.SavedId">Отказ</a></form></section>

@@ -1,0 +1,26 @@
+@model MovieCard
+@inject MoviePresentation Presentation
+@{ var targetUrl = Model.SavedId is int localId ? Url.Action("Edit", "MyList", new { id = localId }) : Url.Action("Details", "Movies", new { tmdbId = Model.TmdbId }); }
+<article class="movie-card">
+    <a class="poster-link" href="@targetUrl" aria-label="@(Model.SavedId.HasValue ? "Моят запис за" : "Детайли за") @Model.Title">
+        <img src="@Presentation.Poster(Model.PosterPath)" alt="Постер: @Model.Title" loading="lazy" width="500" height="750" data-poster />
+        @if (Model.TmdbRating is double rating) { <span class="rating-pill">TMDB @rating.ToString("0.0", CultureInfo.InvariantCulture)</span> }
+    </a>
+    <div class="card-content">
+        <p class="eyebrow">@(Model.ReleaseDate?.Year.ToString() ?? "Без дата") @if (Model.IsFavorite) { <span class="favorite">♥ Любим</span> }</p>
+        <h3><a href="@targetUrl">@Model.Title</a></h3>
+        @if (Model.Status is WatchStatus status) { <p class="muted">@Labels.Status(status)</p> }
+        @if (Model.Status == WatchStatus.Watched) { <p class="personal-rating">@Labels.Rating(Model.PersonalRating)</p> }
+        @if (Model.SavedId is int savedId)
+        {
+            <a class="button subtle full" asp-controller="MyList" asp-action="Edit" asp-route-id="@savedId">Редактирай <span aria-hidden="true">↗</span></a>
+        }
+        else
+        {
+            <form asp-controller="MyList" asp-action="Add" method="post">
+                <input type="hidden" name="tmdbId" value="@Model.TmdbId" />
+                <button class="button subtle full" type="submit">＋ За гледане</button>
+            </form>
+        }
+    </div>
+</article>

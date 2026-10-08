@@ -1,0 +1,37 @@
+@model BrowsePage
+@{ ViewData["Title"] = "Открий филм"; }
+<div class="page-heading"><p class="eyebrow accent">КАТАЛОГ</p><h1>Следващата добра история.</h1><p class="lead">Имаш заглавие наум? Или просто знаеш какво ти се гледа?</p></div>
+<div class="tabs" aria-label="Режим на търсене"><a class="@(Model.Mode == "title" ? "active" : "")" asp-action="Search" asp-route-mode="title">По заглавие</a><a class="@(Model.Mode == "discover" ? "active" : "")" asp-action="Search" asp-route-mode="discover">Откриване с филтри</a></div>
+<div asp-validation-summary="All" class="validation" role="alert"></div>
+@if (Model.Mode == "title")
+{
+    <form method="get" asp-action="Search" class="panel filter-form">
+        <input type="hidden" name="mode" value="title" />
+        <div class="grow"><label for="Query">Заглавие</label>@Html.TextBox("Query", Model.TitleInput.Query, new { placeholder="Например: Interstellar", maxlength=150, required="required" })</div>
+        <div><label for="Year">Година</label>@Html.TextBox("Year", Model.TitleInput.Year, new { type="number", min=1888, max=2100, placeholder="Всяка" })</div>
+        <button class="button primary" type="submit">Търси →</button>
+    </form>
+}
+else
+{
+    <form method="get" asp-action="Search" class="panel filter-form">
+        <input type="hidden" name="mode" value="discover" />
+        <div><label for="GenreId">Жанр</label>@Html.DropDownList("GenreId", new SelectList(Model.Genres,"Id","Name",Model.DiscoverInput.GenreId), "Всички жанрове")</div>
+        <div><label for="YearFrom">От година</label>@Html.TextBox("YearFrom", Model.DiscoverInput.YearFrom, new { type="number", min=1888, max=2100 })</div>
+        <div><label for="YearTo">До година</label>@Html.TextBox("YearTo", Model.DiscoverInput.YearTo, new { type="number", min=1888, max=2100 })</div>
+        <div><label for="MinimumRating">TMDB минимум</label>@Html.DropDownList("MinimumRating",new SelectList(Enumerable.Range(0,11),Model.DiscoverInput.MinimumRating),"Без минимум")</div>
+        <div><label for="Sort">Подреди по</label>@Html.DropDownList("Sort",new SelectList(new[] { new { Value="popularity.desc", Text="Популярност" },new { Value="vote_average.desc",Text="Рейтинг" },new { Value="primary_release_date.desc",Text="Най-нови" } },"Value","Text",Model.DiscoverInput.Sort))</div>
+        <button class="button primary" type="submit">Открий →</button>
+    </form>
+}
+@if (Model.Error != null) { <div class="notice" role="alert">@Model.Error</div> }
+else if (Model.Searched && ViewData.ModelState.IsValid)
+{
+    <div class="section-heading"><h2>Резултати</h2><span class="muted">Страница @Model.Page</span></div>
+    @if (Model.Movies.Count == 0) { <div class="empty-state"><h3>Няма намерени филми.</h3><p>Опитай друго заглавие или разшири филтрите.</p></div> }
+    <div class="movie-grid">@foreach (var movie in Model.Movies) { <partial name="_MovieCard" model="movie" /> }</div>
+    <nav class="pagination-bar" aria-label="Страници с филми">
+        @if (Model.PreviousUrl != null) { <a class="button subtle" href="@Model.PreviousUrl">← Предишна</a> }
+        @if (Model.NextUrl != null) { <a class="button subtle" href="@Model.NextUrl">Следваща →</a> }
+    </nav>
+}

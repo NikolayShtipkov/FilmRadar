@@ -1,0 +1,11 @@
+@model ProfilePage
+@{ ViewData["Title"] = "Моят профил"; }
+<div class="page-heading"><p class="eyebrow accent">НАСТРОЙ РАДАРА</p><h1>Твоят вкус е отправната точка.</h1><p class="lead">Избери любими жанрове. Оценките ти ще допълват картината с времето.</p></div>
+<form asp-action="Edit" method="post" class="panel editor-form">
+    <div asp-validation-summary="All" class="validation" role="alert"></div>
+    <label asp-for="Input.DisplayName"></label><input asp-for="Input.DisplayName" maxlength="50" />
+    <fieldset><legend>Любими жанрове</legend><div class="genre-options">@foreach (var genre in Model.Genres) { <label><input type="checkbox" name="Input.GenreIds" value="@genre.Id" checked="@Model.Input.GenreIds.Contains(genre.Id)" /><span>@genre.Name</span></label> }</div></fieldset>
+    <div class="form-row"><div><label asp-for="Input.YearFrom"></label><input asp-for="Input.YearFrom" min="1888" max="2100" /></div><div><label asp-for="Input.YearTo"></label><input asp-for="Input.YearTo" min="1888" max="2100" /></div><div><label asp-for="Input.MinimumRating"></label><select asp-for="Input.MinimumRating"><option value="">Без минимум</option>@for (var i=0;i<=10;i++) { <option value="@i">@i / 10</option> }</select></div></div>
+    <button class="button primary" type="submit">Запази предпочитанията</button>
+</form>
+<form asp-action="RefreshGenres" method="post" class="sync-form"><span class="muted">Жанровете са налични и без интернет.</span><button class="button subtle" type="submit">Обнови от TMDB</button></form>

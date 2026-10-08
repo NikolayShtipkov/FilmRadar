@@ -1,0 +1,12 @@
+@model ListPage
+@{ ViewData["Title"] = "Моят списък"; }
+<div class="page-heading"><p class="eyebrow accent">МОЯТА КОЛЕКЦИЯ</p><h1>Истории, които остават.</h1><p class="lead">Запазените филми, личните ти оценки и всичко, което предстои.</p></div>
+<div class="collection-toolbar">
+    <div class="tabs">
+        @foreach (var item in new[] { ("all","Всички"),("watchlist","За гледане"),("watched","Гледани"),("favorites","Любими") })
+        { <a class="@(Model.Filter == item.Item1 ? "active" : "")" asp-action="Index" asp-route-filter="@item.Item1" asp-route-sort="@Model.Sort">@item.Item2</a> }
+    </div>
+    <form method="get" class="inline-form"><input type="hidden" name="filter" value="@Model.Filter" /><label for="sort">Подреди</label><select id="sort" name="sort"><option value="recent" selected="@(Model.Sort == "recent")">Последно добавени</option><option value="title" selected="@(Model.Sort == "title")">Заглавие</option><option value="rating" selected="@(Model.Sort == "rating")">Моята оценка</option></select><button class="button subtle" type="submit">Приложи</button></form>
+</div>
+@if (Model.Movies.Count == 0) { <div class="empty-state"><span class="empty-icon" aria-hidden="true">＋</span><h2>Тук започва твоят списък.</h2><p>Добави филм от каталога и го запази за следващата кино вечер.</p><a class="button primary" asp-controller="Movies" asp-action="Search">Открий филм →</a></div> }
+else { <p class="eyebrow">@Model.Movies.Count ФИЛМА</p><div class="movie-grid">@foreach (var movie in Model.Movies) { <partial name="_MovieCard" model="movie" /> }</div> }

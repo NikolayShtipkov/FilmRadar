@@ -1,0 +1,17 @@
+@model EditPage
+@{ ViewData["Title"] = "Моята оценка"; }
+<a class="back-link" asp-action="Index">← Моят списък</a>
+<div class="page-heading"><p class="eyebrow accent">ТВОЯТА ГЛЕДНА ТОЧКА</p><h1>@Model.Title</h1><p class="lead">Един филм. Твоето мнение.</p></div>
+<form method="post" asp-action="Edit" asp-route-id="@Model.Id" class="panel editor-form">
+    <div asp-validation-summary="All" class="validation" role="alert"></div>
+    <div class="form-row"><div><label asp-for="Input.StatusValue"></label><select asp-for="Input.StatusValue"><option value="1">За гледане</option><option value="2">Гледан</option></select></div><div><label asp-for="Input.WatchedOn"></label><input asp-for="Input.WatchedOn" type="date" /><small>Празно при „Гледан“ означава днешната дата.</small></div></div>
+    <fieldset class="rating-field"><legend>Моята оценка <small>/ 0–4</small></legend>
+        <div class="rating-options"><label class="rating-option"><input type="radio" asp-for="Input.PersonalRatingValue" id="rating-none" value="" /><span>—</span><small>Не е оценен</small></label>
+        @for (var i=0; i<=4; i++) { <label class="rating-option"><input type="radio" asp-for="Input.PersonalRatingValue" id="rating-@i" value="@i" /><span>@i</span><small>@Labels.Rating((PersonalRating)i).Split(" — ")[1]</small></label> }</div>
+        <p class="muted">Оценката се запазва за гледани филми. Нулата е реална оценка.</p>
+    </fieldset>
+    <label class="check-line"><input asp-for="Input.IsFavorite" /> Отбележи като любим</label>
+    <label asp-for="Input.Notes"></label><textarea asp-for="Input.Notes" rows="4" maxlength="1000" placeholder="Какво ти остана след финалните надписи?"></textarea>
+    @if (Model.WasWatched) { <div class="notice"><p>Връщането в „За гледане“ изчиства личната оценка и датата.</p><label class="check-line"><input asp-for="Input.ConfirmReset" /> <span>@Html.DisplayNameFor(m => m.Input.ConfirmReset)</span></label></div> }
+    <div class="actions"><button class="button primary" type="submit">Запази промените</button><a class="button subtle" asp-action="Index">Отказ</a><a class="danger-link" asp-action="Delete" asp-route-id="@Model.Id">Премахни от списъка</a></div>
+</form>

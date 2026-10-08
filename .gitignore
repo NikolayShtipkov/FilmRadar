@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/App_Data/
+**/TestResults/
+.vs/
+*.user
+*.suo
+*.db*
+**/node_modules/
+artifacts/
+.venv/
+__pycache__/
+tmp/
+**/appsettings.Local.json

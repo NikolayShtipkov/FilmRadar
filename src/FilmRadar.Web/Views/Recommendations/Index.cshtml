@@ -1,0 +1,27 @@
+@model RecommendationPage
+@inject MoviePresentation Presentation
+@{ ViewData["Title"] = "Препоръки за теб"; }
+<div class="page-heading"><p class="eyebrow accent">ЗА ТЕБ</p><h1>Как ти се гледа тази вечер?</h1><p class="lead">Твоите жанрове, лични оценки и настроение — в една селекция с ясни причини.</p></div>
+<form method="get" asp-action="Index" class="panel recommendation-form">
+    <input type="hidden" name="Input.Generate" value="true" />
+    <div asp-validation-summary="All" class="validation" role="alert"></div>
+    <fieldset><legend>Избери настроение</legend><div class="mood-options">@foreach (var mood in Enum.GetValues<MovieMood>()) { <label><input type="radio" asp-for="Input.Mood" id="mood-@((int)mood)" value="@((int)mood)" /><span>@Labels.Mood(mood)</span></label> }</div></fieldset>
+    <details><summary>Жанрове и допълнителни критерии</summary>
+        <div class="genre-options">@foreach (var genre in Model.Genres) { <label><input type="checkbox" name="Input.GenreIds" value="@genre.Id" checked="@Model.Input.GenreIds.Contains(genre.Id)" /><span>@genre.Name</span></label> }</div>
+        <div class="form-row"><div><label asp-for="Input.YearFrom"></label><input asp-for="Input.YearFrom" min="1888" max="2100" /></div><div><label asp-for="Input.YearTo"></label><input asp-for="Input.YearTo" min="1888" max="2100" /></div><div><label asp-for="Input.MinimumRating"></label><select asp-for="Input.MinimumRating"><option value="">От профила</option>@for(var i=0;i<=10;i++){<option value="@i">@i / 10</option>}</select></div></div>
+        <p class="muted">Празните полета използват предпочитанията от профила. Избраните тук жанрове ограничават търсенето.</p>
+    </details>
+    <button class="button primary" type="submit">Настрой радара →</button>
+</form>
+<p class="criteria">@Model.EffectiveCriteria</p>
+@if(Model.Error != null) { <div class="notice" role="alert">@Model.Error</div> }
+else if(Model.Input.Generate && ViewData.ModelState.IsValid)
+{
+    @if(Model.Results.Count == 0){<div class="empty-state"><h2>Няма нови сигнали.</h2><p>Разшири жанровете или периода и намали минималния рейтинг.</p></div>}
+    <div class="recommendation-list">@foreach(var result in Model.Results)
+    {
+        <article class="recommendation-card"><img src="@Presentation.Poster(result.Movie.PosterPath)" alt="Постер: @result.Movie.Title" loading="lazy" width="180" height="270" data-poster /><div class="recommendation-body"><p class="eyebrow">@(result.Movie.ReleaseDate?.Year.ToString() ?? "Без дата") · TMDB @(result.Movie.VoteAverage?.ToString("0.0",CultureInfo.InvariantCulture) ?? "—")/10</p><h2><a asp-controller="Movies" asp-action="Details" asp-route-tmdbId="@result.Movie.Id">@result.Movie.Title</a></h2><ul class="reasons">@foreach(var reason in result.Reasons){<li>@reason</li>}</ul>@if(result.Information != null){<p class="muted">@result.Information</p>}
+        @if(result.Movie.SavedId is int savedId){<a class="button subtle" asp-controller="MyList" asp-action="Edit" asp-route-id="@savedId">В списъка за гледане ↗</a>}else{<form asp-controller="MyList" asp-action="Add" method="post"><input type="hidden" name="tmdbId" value="@result.Movie.Id" /><button class="button subtle" type="submit">＋ За гледане</button></form>}</div><div class="match-score"><strong>@Math.Round(result.Score)</strong><span>/100 съвпадение</span></div></article>
+    }</div>
+}
+<p class="footnote">Препоръките използват обясними правила (mock AI). Резултатът е съвпадение с вкуса ти, а не гаранция за качеството на филма.</p>

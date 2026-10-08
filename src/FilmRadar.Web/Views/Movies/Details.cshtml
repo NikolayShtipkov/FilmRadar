@@ -1,0 +1,14 @@
+@model DetailsPage
+@inject MoviePresentation Presentation
+@{ ViewData["Title"] = Model.Movie.Title; }
+<a class="back-link" asp-action="Search">← Към каталога</a>
+<section class="details-grid">
+    <img class="detail-poster" src="@Presentation.Poster(Model.Movie.PosterPath)" alt="Постер: @Model.Movie.Title" width="500" height="750" data-poster />
+    <div><p class="eyebrow accent">ФИЛМ · @(Model.Movie.ReleaseDate?.Year.ToString() ?? "Без дата")</p><h1>@Model.Movie.Title</h1><p class="muted">@Model.OriginalTitle</p>
+        <div class="chips">@foreach (var genre in Model.Genres) { <span>@genre</span> }</div>
+        <div class="facts"><div><span>TMDB рейтинг</span><strong>@(Model.Movie.TmdbRating?.ToString("0.0",CultureInfo.InvariantCulture) ?? "—")<small>/10</small></strong></div><div><span>Продължителност</span><strong>@(Model.Runtime?.ToString() ?? "—")<small> мин.</small></strong></div></div>
+        <p class="overview">@(string.IsNullOrWhiteSpace(Model.Overview) ? "Няма налично описание на български." : Model.Overview)</p>
+        @if (Model.Movie.SavedId is int savedId) { <p>@Labels.Status(Model.Movie.Status!.Value) · @Labels.Rating(Model.Movie.PersonalRating)</p><a class="button primary" asp-controller="MyList" asp-action="Edit" asp-route-id="@savedId">Редактирай моя запис ↗</a> }
+        else { <form asp-controller="MyList" asp-action="Add" method="post"><input type="hidden" name="tmdbId" value="@Model.Movie.TmdbId" /><button class="button primary" type="submit">＋ Добави в „За гледане“</button></form> }
+    </div>
+</section>
