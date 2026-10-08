@@ -7,7 +7,13 @@
         <p class="lead">Открий филм за настроението си. Запази го, оцени го по твоята скала и направи следващата препоръка още по-точна.</p>
         <div class="actions"><a class="button primary" asp-controller="Recommendations" asp-action="Index">Намери нещо за мен <span aria-hidden="true">↗</span></a><a class="button subtle" asp-controller="Movies" asp-action="Search">Търси заглавие</a></div>
     </div>
-    <div class="radar-art" aria-hidden="true"><span class="orbit o1"></span><span class="orbit o2"></span><span class="orbit o3"></span><span class="radar-line"></span><span class="radar-dot d1"></span><span class="radar-dot d2"></span><div class="signal">ТВОЯТ ВКУС.<br /><strong>НОВ СИГНАЛ.</strong></div></div>
+    <figure class="radar-visual" aria-hidden="true">
+        <div class="radar-art">
+            <span class="orbit o1"></span><span class="orbit o2"></span><span class="orbit o3"></span>
+            <span class="radar-line"></span><span class="radar-dot d1"></span><span class="radar-dot d2"></span>
+        </div>
+        <figcaption class="signal">ТВОЯТ ВКУС.<br /><strong>НОВ СИГНАЛ.</strong></figcaption>
+    </figure>
 </section>
 <section class="steps" aria-label="Как работи">
     <div><span>01</span><h2>Открий</h2><p>Заглавия, жанрове и нови посоки.</p></div>
