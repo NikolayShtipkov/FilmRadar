@@ -1,3 +1,4 @@
+using FilmRadar.Web.Configuration;
 using FilmRadar.Web.Data;
 using FilmRadar.Web.Integrations.Tmdb;
 using FilmRadar.Web.Services;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddLocalSettings(builder.Environment.ContentRootPath, args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Services.AddControllersWithViews(o =>

@@ -2,7 +2,7 @@
 
 ## Подготовка
 
-Стартирайте `dotnet run --project src/FilmRadar.Web --launch-profile demo`. Използва се отделна база с шест измислени записа. Добавете собствен TMDB Read Access Token чрез User Secrets за live частта. Проверете търсене на `Interstellar`, подробности и препоръки преди представянето. Не показвайте токена на екрана.
+Стартирайте `dotnet run --project src/FilmRadar.Web --launch-profile demo`. Използва се отделна база с шест измислени записа. Копирайте `appsettings.Local.example.json` като `appsettings.Local.json` в `src/FilmRadar.Web`, попълнете собствен TMDB Read Access Token и рестартирайте за live частта. User Secrets остават алтернатива. Проверете търсене на `Interstellar`, подробности и препоръки преди представянето. Не показвайте токена на екрана.
 
 Отворете `output/pdf/FilmRadar-Presentation.pdf` и приложението. Подгответе локалния списък като offline резервен вариант. Live демонстрацията още трябва да бъде репетирана със собствения ви token.
 

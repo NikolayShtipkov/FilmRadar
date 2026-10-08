@@ -23,6 +23,26 @@ dotnet run --project src/FilmRadar.Web --launch-profile http
 
 Приложението стартира и без token. Профилът и локалният списък работят, а каталогът показва обяснение за липсващата конфигурация. За реално търсене и препоръки вземете **API Read Access Token** от собствения си TMDB акаунт. Това е Bearer token, не краткият v3 API key.
 
+В проекта има празен шаблон `src/FilmRadar.Web/appsettings.Local.example.json`. След изтегляне от GitHub го копирайте:
+
+```powershell
+Copy-Item src/FilmRadar.Web/appsettings.Local.example.json src/FilmRadar.Web/appsettings.Local.json
+```
+
+Отворете `appsettings.Local.json` и попълнете токена, без префикса `Bearer`:
+
+```json
+{
+  "Tmdb": {
+    "ReadAccessToken": "YOUR_TMDB_READ_ACCESS_TOKEN"
+  }
+}
+```
+
+Рестартирайте приложението след промяна. Празният `.example.json` се предава в Git, а попълненият `appsettings.Local.json` се игнорира и не се копира в build/publish output. Липсващ или празен локален файл позволява работа без token.
+
+User Secrets също остават поддържани, ако вече сте настроили токена там:
+
 ```powershell
 dotnet user-secrets set "Tmdb:ReadAccessToken" "YOUR_TMDB_READ_ACCESS_TOKEN" --project src/FilmRadar.Web
 ```
@@ -34,7 +54,9 @@ $env:Tmdb__ReadAccessToken = "YOUR_TMDB_READ_ACCESS_TOKEN"
 dotnet run --project src/FilmRadar.Web --launch-profile http
 ```
 
-Заменете примерната стойност локално. Не добавяйте реален token в Git, `appsettings.json`, `launchSettings.json`, screenshots или логове. User Secrets се зареждат само в Development и не са криптиран production secret store. Приложението не изписва Authorization headers, токена или търсеното заглавие в HTTP логовете.
+Непразните стойности от локалния файл имат предимство пред базовите JSON настройки и User Secrets; environment variables и command-line аргументите имат най-висок приоритет. Празните стойности от шаблона не изчистват вече настроен User Secrets token.
+
+Заменете примерната стойност локално. Не добавяйте реален token в Git, `appsettings.json`, `appsettings.Local.example.json`, `launchSettings.json`, screenshots или логове. User Secrets се зареждат само в Development. Приложението не изписва Authorization headers, токена или търсеното заглавие в HTTP логовете.
 
 TMDB настройки без тайни се намират в `src/FilmRadar.Web/appsettings.json`. Заявките използват `bg-BG`, регион `BG`, `include_adult=false` и timeout 10 секунди. Няма автоматичен English fallback или retries.
 
@@ -44,7 +66,7 @@ TMDB настройки без тайни се намират в `src/FilmRadar.
 2. Отворете `FilmRadar.sln`.
 3. Задайте `FilmRadar.Web` като Startup Project.
 4. Изберете профил `http` и F5. За примерните данни изберете `demo`.
-5. Тестовете се откриват от Test Explorer. За token използвайте Manage User Secrets на web проекта или командата по-горе.
+5. Тестовете се откриват от Test Explorer. За token копирайте локалния шаблон и попълнете `appsettings.Local.json`. Manage User Secrets на web проекта остава алтернатива.
 
 Профилът `https` е наличен след доверяване на development сертификата с `dotnet dev-certs https --trust`. Не заобикаляйте предупрежденията за сертификат в браузъра.
 
